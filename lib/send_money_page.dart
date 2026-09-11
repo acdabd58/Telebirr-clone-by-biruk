@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // For input formatter
-import 'dart:async'; // For Future.delayed
+import 'package:flutter/services.dart';
+import 'dart:async';
 
 class SendMoneyPage extends StatefulWidget {
-  const SendMoneyPage({Key? key}) : super(key: key);
+  final double currentBalance;
+  final ValueChanged<double> onBalanceUpdated;
+
+  const SendMoneyPage({
+    Key? key,
+    required this.currentBalance,
+    required this.onBalanceUpdated,
+  }) : super(key: key);
 
   @override
   _SendMoneyPageState createState() => _SendMoneyPageState();
@@ -13,17 +20,14 @@ class _SendMoneyPageState extends State<SendMoneyPage> {
   final _phoneController = TextEditingController();
   final _amountController = TextEditingController();
   
-  // State variables for UI logic
   String? _fetchedContactName;
   bool _isLoading = false;
   double _feeAmount = 0.0;
   double _totalAmount = 0.0;
-  bool _hasError = false;
 
   @override
   void initState() {
     super.initState();
-    // Add listeners to recalculate whenever input changes
     _phoneController.addListener(_onPhoneChanged);
     _amountController.addListener(_calculateTotals);
   }
@@ -35,18 +39,12 @@ class _SendMoneyPageState extends State<SendMoneyPage> {
     super.dispose();
   }
 
-  // --- Logic ---
-
-  // Simulate fetching a name when phone number reaches 10 digits
   void _onPhoneChanged() {
-    final phone = _phoneController.text.replaceAll(RegExp(r'\D'), ''); // Clean formatting
-    
+    final phone = _phoneController.text.replaceAll(RegExp(r'\D'), '');
     if (phone.length == 10 && _fetchedContactName == null) {
-      // Simulate network delay
       Future.delayed(const Duration(milliseconds: 800), () {
         if (mounted) {
           setState(() {
-            // MOCK NAME: Replace this with actual contact lookup if you integrate contacts
             _fetchedContactName = "Abebe Kebede"; 
           });
         }
@@ -58,7 +56,6 @@ class _SendMoneyPageState extends State<SendMoneyPage> {
     }
   }
 
-  // Calculate 1% fee and total
   void _calculateTotals() {
     final amountText = _amountController.text.trim();
     if (amountText.isEmpty) {
@@ -69,64 +66,69 @@ class _SendMoneyPageState extends State<SendMoneyPage> {
       return;
     }
 
-    finalenteredAmount = double.tryParse(amountText);
+    final enteredAmount = double.tryParse(amountText);
     if (enteredAmount != null && enteredAmount > 0) {
       setState(() {
-        // Telebirr typically has a transaction fee. Assuming 1% here.
         _feeAmount = enteredAmount * 0.01; 
         _totalAmount = enteredAmount + _feeAmount;
-        _hasError = false;
       });
     } else {
-       setState(() {
+      setState(() {
         _feeAmount = 0.0;
         _totalAmount = 0.0;
       });
     }
   }
 
-  // Main action button logic
   void _onTransferPressed() {
     final phone = _phoneController.text.replaceAll(RegExp(r'\D'), '');
     final amountText = _amountController.text.trim();
 
-    // Validation
     if (phone.length != 10 || _fetchedContactName == null) {
-       ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter a valid 10-digit Ethiopian number')),
       );
       return;
     }
 
-    if (amountText.isEmpty || double.parse(amountText) <= 0) {
-       ScaffoldMessenger.of(context).showSnackBar(
+    final enteredAmount = double.tryParse(amountText) ?? 0.0;
+    if (enteredAmount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter a valid amount')),
       );
       return;
     }
 
-    // Start Loading (Telebirr Style)
+    if (_totalAmount > widget.currentBalance) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Insufficient balance for this transfer')),
+      );
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
 
-    // Simulate API call delay (2 seconds)
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
-        _showSuccessDialog();
+        
+        // Deduct from total balance and sync back
+        double newBalance = widget.currentBalance - _totalAmount;
+        widget.onBalanceUpdated(newBalance);
+        
+        _showSuccessDialog(enteredAmount);
       }
     });
   }
 
-  // --- UI Components ---
-
-  void _showSuccessDialog() {
+  void _showSuccessDialog(double sentAmount) {
     showDialog(
       context: context,
-      barrierDismissible: false, // User must tap OK
+      barrierDismissible: false,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Row(
@@ -143,17 +145,17 @@ class _SendMoneyPageState extends State<SendMoneyPage> {
             Text("To: $_fetchedContactName"),
             Text("Number: ${_phoneController.text}"),
             const SizedBox(height: 10),
-            Text("Amount Sent: ${double.parse(_amountController.text).toStringAsFixed(2)} ETB"),
+            Text("Amount Sent: ${sentAmount.toStringAsFixed(2)} ETB"),
             Text("Fee Charged: ${_feeAmount.toStringAsFixed(2)} ETB"),
             const Divider(),
-            Text("Total Paid: ${_totalAmount.toStringAsFixed(2)} ETB", style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text("Total Deducted: ${_totalAmount.toStringAsFixed(2)} ETB", style: const TextStyle(fontWeight: FontWeight.bold)),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context); // Close dialog
-              Navigator.pop(context); // Return to home screen
+              Navigator.pop(context); 
+              Navigator.pop(context); 
             },
             child: const Text('OK', style: TextStyle(color: Color(0xFF00796B))),
           ),
@@ -162,7 +164,6 @@ class _SendMoneyPageState extends State<SendMoneyPage> {
     );
   }
 
-  // Input decoration styled like Telebirr
   InputDecoration _telebirrInputDecoration({required String label, IconData? icon, Widget? suffix}) {
     return InputDecoration(
       labelText: label,
@@ -189,7 +190,7 @@ class _SendMoneyPageState extends State<SendMoneyPage> {
         Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
-            backgroundColor: const Color(0xFF00796B), // Telebirr Teal
+            backgroundColor: const Color(0xFF00796B),
             elevation: 0,
             title: const Text('Send Money'),
             centerTitle: true,
@@ -206,8 +207,6 @@ class _SendMoneyPageState extends State<SendMoneyPage> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF00796B)),
                   ),
                   const SizedBox(height: 20),
-
-                  // --- Phone Number Input ---
                   TextField(
                     controller: _phoneController,
                     keyboardType: TextInputType.phone,
@@ -222,8 +221,6 @@ class _SendMoneyPageState extends State<SendMoneyPage> {
                     ),
                   ),
                   const SizedBox(height: 10),
-
-                  // --- Dynamic Name Display ---
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     height: _fetchedContactName != null ? 40 : 0,
@@ -247,28 +244,22 @@ class _SendMoneyPageState extends State<SendMoneyPage> {
                         )
                       : const SizedBox(),
                   ),
-                  
                   const SizedBox(height: 30),
                   const Text(
                     "Payment Details",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF00796B)),
                   ),
                   const SizedBox(height: 20),
-
-                  // --- Amount Input ---
                   TextField(
                     controller: _amountController,
-                    keyboardType: TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}'))], // Allow decimals
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}'))],
                     decoration: _telebirrInputDecoration(
                       label: 'Amount (ETB)',
                       icon: Icons.money,
                     ),
                   ),
-                  
                   const SizedBox(height: 30),
-
-                  // --- Calculation Summary Box ---
                   AnimatedOpacity(
                     opacity: _totalAmount > 0 ? 1.0 : 0.0,
                     duration: const Duration(milliseconds: 300),
@@ -285,7 +276,7 @@ class _SendMoneyPageState extends State<SendMoneyPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text("Transfer Amount:", style: TextStyle(color: Colors.grey)),
-                              Text("${double.tryParse(_amountController.text)??0.0} ETB", style: const TextStyle(fontWeight: FontWeight.w500)),
+                              Text("${double.tryParse(_amountController.text) ?? 0.0} ETB", style: const TextStyle(fontWeight: FontWeight.w500)),
                             ],
                           ),
                           const SizedBox(height: 8),
@@ -314,10 +305,7 @@ class _SendMoneyPageState extends State<SendMoneyPage> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 40),
-
-                  // --- Transfer Button ---
                   SizedBox(
                     width: double.infinity,
                     height: 55,
@@ -336,7 +324,7 @@ class _SendMoneyPageState extends State<SendMoneyPage> {
                           )
                         : const Text(
                             'TRANSFER', 
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1)
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1, color: Colors.white)
                           ),
                     ),
                   ),
@@ -345,27 +333,11 @@ class _SendMoneyPageState extends State<SendMoneyPage> {
             ),
           ),
         ),
-
-        // --- Telebirr Style Fullscreen Loading Overlay ---
         if (_isLoading)
           Container(
             color: Colors.black.withOpacity(0.5),
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.all(30),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: const Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00796B))),
-                    SizedBox(height: 20),
-                    Text("Processing...", style: TextStyle(color: Color(0xFF00796B), fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
+            child: const Center(
+              child: CircularProgressIndicator(color: Color(0xFF00796B)),
             ),
           ),
       ],
