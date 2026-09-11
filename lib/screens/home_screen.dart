@@ -1,15 +1,16 @@
-import 'recharge_page.dart';
-import 'package:carousel_slider/carousel_slider.dart';
-import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:dots_indicator/dots_indicator.dart';
 import 'package:marquee/marquee.dart';
 import 'package:telebirrbybr7/constants.dart';
 import 'package:telebirrbybr7/widgets/balance_info.dart';
 import 'package:telebirrbybr7/widgets/grid_content.dart';
 import 'package:telebirrbybr7/widgets/notification_area.dart';
-import 'package:telebirrbybr7/widgets/transaction%20detail.dart';
+import 'package:telebirrbybr7/widgets/transaction detail.dart';
 import 'package:telebirrbybr7/widgets/user_introduction.dart';
+import 'package:telebirrbybr7/send_money_page.dart';
+import 'package:telebirrbybr7/recharge_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,6 +21,16 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+  
+  // Starting balance set to 100,000.00 ETB as requested
+  double _userBalance = 100000.00;
+
+  // Method to update balance from other pages (like Recharge or Send Money)
+  void _updateBalance(double newBalance) {
+    setState(() {
+      _userBalance = newBalance;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,23 +66,38 @@ class _HomeScreenState extends State<HomeScreen> {
                 decoration: const BoxDecoration(
                   color: Color.fromRGBO(140, 199, 63, 1),
                 ),
-                child: const Padding(
-                  padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                   child: Column(
                     children: [
-                      Row(
+                      const Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           UserIntroduction(),
                           NotificationArea(),
                         ],
                       ),
-                      BalanceInfo(
-                        label: 'Balance (ETB) ',
-                        balanceFontSize: 25,
-                        labelFontSize: 16,
+                      // Displaying custom 100,000.00 balance wrapper
+                      GestureDetector(
+                        onTap: () {
+                          // Quick tap to test/open recharge from balance card if wanted
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RechargePage(
+                                currentBalance: _userBalance,
+                                onBalanceUpdated: _updateBalance,
+                              ),
+                            ),
+                          );
+                        },
+                        child: BalanceInfo(
+                          label: 'Balance (ETB) : ${_userBalance.toStringAsFixed(2)}',
+                          balanceFontSize: 25,
+                          labelFontSize: 16,
+                        ),
                       ),
-                      Row(
+                      const Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           BalanceInfo(
@@ -124,6 +150,48 @@ class _HomeScreenState extends State<HomeScreen> {
                     left: 8.0, right: 8, top: 5, bottom: 10),
                 child: Column(
                   children: [
+                    // --- Navigation Shortcuts Section ---
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        mainAxisAlignment: SpaceEvenlyCustomOrSpaceAround(context),
+                        children: [
+                          _buildShortcutButton(
+                            context,
+                            icon: Icons.send,
+                            label: 'Send Money',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SendMoneyPage(
+                                    currentBalance: _userBalance,
+                                    onBalanceUpdated: _updateBalance,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildShortcutButton(
+                            context,
+                            icon: Icons.flash_on,
+                            label: 'Recharge',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => RechargePage(
+                                    currentBalance: _userBalance,
+                                    onBalanceUpdated: _updateBalance,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    
                     GridContent(
                       gridIcon: topGridIcon,
                       gridLabel: topGridLabel,
@@ -219,6 +287,31 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  Widget _buildShortcutButton(BuildContext context, {required IconData icon, required String label, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(color: Colors.grey.withOpacity(0.2), blurRadius: 4, offset: const Offset(0, 2))
+          ]
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: const Color.fromRGBO(140, 199, 63, 1), size: 28),
+            const SizedBox(height: 4),
+            Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87)),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  MainAxisAlignment SpaceEvenlyCustomOrSpaceAround(BuildContext context) => MainAxisAlignment.spaceEvenly;
 }
 
 class ImageSliderIndicator extends StatelessWidget {
