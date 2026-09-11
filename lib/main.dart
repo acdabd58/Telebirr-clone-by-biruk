@@ -5,7 +5,6 @@ void main() {
   runApp(const MyApp());
 }
 
-// Custom colors based on the design theme
 final Color primaryGreen = const Color(0xFF8DC63F);
 final Color darkGreen = const Color(0xFF5C8A23);
 final Color lightGreen = const Color(0xFFEAF5D8);
@@ -70,7 +69,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Icon(Icons.phone_android, size: 60, color: Color(0xFF8DC63F)),
+              child: Icon(Icons.phone_android, size: 60, color: primaryGreen),
             ),
             const SizedBox(height: 20),
             const Text(
@@ -105,12 +104,11 @@ class HomeScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Balance Section
             Container(
               padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: Color(0xFF8DC63F),
-                borderRadius: BorderRadius.only(
+              decoration: BoxDecoration(
+                color: primaryGreen,
+                borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(20),
                 ),
@@ -132,8 +130,6 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            
-            // Services Grid
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: GridView.count(
@@ -143,19 +139,22 @@ class HomeScreen extends StatelessWidget {
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 10,
                 children: [
-                  _buildServiceIcon(Icons.send, 'Send\nMoney', () => _showSendMoneyOptions(context)),
+                  _buildServiceIcon(Icons.send, 'Send\nMoney', () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const SendMoneyScreen()),
+                    );
+                  }),
                   _buildServiceIcon(Icons.add_box, 'Cash In/\nOut', () {}),
                   _buildServiceIcon(Icons.phone_android, 'Airtime/\nPackage', () {}),
                   _buildServiceIcon(Icons.store, 'Zemen\nGEBEYA', () {}),
                   _buildServiceIcon(Icons.account_balance, 'Financial\nService', () {}),
-                  _buildServiceIcon(Icons.water_drop, 'Financial\nService', () {}),
-                  _buildServiceIcon(Icons.payment, 'Financial\nService', () {}),
-                  _buildServiceIcon(Icons.account_balance_wallet, 'Transfer to\nBank', () {}),
+                  _buildServiceIcon(Icons.water_drop, 'Utilities', () {}),
+                  _buildServiceIcon(Icons.payment, 'Payment', () {}),
+                  _buildServiceIcon(Icons.account_balance_wallet, 'Bank Transfer', () {}),
                 ],
               ),
             ),
-            
-            // Promo Banner Placeholder
             Container(
               margin: const EdgeInsets.all(16),
               height: 120,
@@ -167,8 +166,6 @@ class HomeScreen extends StatelessWidget {
                 child: Text('Tele Play Promo Banner', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               ),
             ),
-            
-            // Scan QR Button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: ElevatedButton.icon(
@@ -219,54 +216,22 @@ class HomeScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 5)],
+          Hero(
+            tag: 'send_money_icon',
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 5)],
+              ),
+              child: Icon(icon, color: primaryGreen, size: 28),
             ),
-            child: Icon(icon, color: primaryGreen, size: 28),
           ),
           const SizedBox(height: 5),
           Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500)),
         ],
       ),
-    );
-  }
-
-  void _showSendMoneyOptions(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  leading: Icon(Icons.person, color: primaryGreen),
-                  title: const Text('To Individual'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const SendMoneyScreen()));
-                  },
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: Icon(Icons.group, color: primaryGreen),
-                  title: const Text('To Group'),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 }
@@ -284,13 +249,22 @@ class SendMoneyScreen extends StatefulWidget {
 class _SendMoneyScreenState extends State<SendMoneyScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _amountController = TextEditingController(text: '1');
+  final TextEditingController _amountController = TextEditingController(text: '600');
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Send Money'),
+        title: const Row(
+          children: [
+            Hero(
+              tag: 'send_money_icon',
+              child: Icon(Icons.send, size: 22, color: Color(0xFF8DC63F)),
+            ),
+            SizedBox(width: 10),
+            Text('Send Money'),
+          ],
+        ),
       ),
       body: Column(
         children: [
@@ -357,11 +331,21 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
     );
   }
 
+  // Calculate Real Tele Rate Fee based on rules:
+  // e.g. Up to 600 = 4 ETB, Up to 1000 = 5 ETB, else scales appropriately.
+  double _calculateFee(double amount) {
+    if (amount <= 50) return 0.0;
+    if (amount <= 600) return 4.0;
+    if (amount <= 1000) return 5.0;
+    if (amount <= 3000) return 7.0;
+    return 9.0;
+  }
+
   void _showConfirmationModal(BuildContext context) {
-    String recipientName = _nameController.text.isEmpty ? 'Unknown' : _nameController.text;
+    String recipientName = _nameController.text.isEmpty ? 'Abebe Kebede' : _nameController.text;
     String amountStr = _amountController.text.isEmpty ? '0' : _amountController.text;
     double amount = double.tryParse(amountStr) ?? 0.0;
-    double serviceFee = 1.00; 
+    double serviceFee = _calculateFee(amount);
     double total = amount + serviceFee;
 
     showModalBottomSheet(
@@ -400,7 +384,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                   children: [
                     _buildRow('Original Amount', '${amount.toStringAsFixed(2)} ETB'),
                     const SizedBox(height: 10),
-                    _buildRow('Service fee', '${serviceFee.toStringAsFixed(2)} ETB'),
+                    _buildRow('Service fee (Telerate)', '${serviceFee.toStringAsFixed(2)} ETB'),
                   ],
                 ),
               ),
@@ -419,7 +403,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Balance', style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text('(Available Balance: 307.66 ETB)', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                        Text('(Available Balance: 339.66 ETB)', style: TextStyle(fontSize: 12, color: Colors.grey)),
                       ],
                     ),
                     const Spacer(),
@@ -446,7 +430,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                   minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
-                child: const Text('Send', style: TextStyle(fontSize: 18, color: Colors.white)),
+                child: const Text('Confirm & Send', style: TextStyle(fontSize: 18, color: Colors.white)),
               ),
             ],
           ),
@@ -551,7 +535,7 @@ class _PinEntryScreenState extends State<PinEntryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black.withOpacity(0.8),
+      backgroundColor: Colors.black.withOpacity(0.85),
       body: SafeArea(
         child: Column(
           children: [
@@ -692,7 +676,7 @@ class SuccessScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  _buildDetailRow('Transaction Time:', '2026/09/11 15:39:02'),
+                  _buildDetailRow('Transaction Time:', '2026/09/11 20:25:33'),
                   const SizedBox(height: 15),
                   _buildDetailRow('Transaction Type:', 'Transfer Money'),
                   const SizedBox(height: 15),
