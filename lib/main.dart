@@ -2,26 +2,27 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const TelebirrApp());
 }
 
-final Color primaryGreen = const Color(0xFF8DC63F);
-final Color darkGreen = const Color(0xFF5C8A23);
-final Color lightGreen = const Color(0xFFEAF5D8);
+const Color primaryGreen = Color(0xFF8DC63F);
+const Color darkGreen = Color(0xFF5C8A23);
+const Color lightGreen = Color(0xFFEAF5D8);
+const Color standardWhite = Colors.white;
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class TelebirrApp extends StatelessWidget {
+  const TelebirrApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Telecom App',
+      title: 'Telebirr Clone',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: primaryGreen,
         scaffoldBackgroundColor: const Color(0xFFF5F5F5),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
+          backgroundColor: standardWhite,
           elevation: 0,
           iconTheme: IconThemeData(color: Colors.black),
           titleTextStyle: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
@@ -66,18 +67,18 @@ class _LoadingScreenState extends State<LoadingScreen> {
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: standardWhite,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Icon(Icons.phone_android, size: 60, color: primaryGreen),
+              child: const Icon(Icons.phone_android, size: 60, color: primaryGreen),
             ),
             const SizedBox(height: 20),
             const Text(
               'Welcome Back',
-              style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(color: standardWhite, fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 40),
-            const CircularProgressIndicator(color: Colors.white),
+            const CircularProgressIndicator(color: standardWhite),
           ],
         ),
       ),
@@ -86,7 +87,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
 }
 
 // ==========================================
-// 2. HOME SCREEN
+// 2. HOME SCREEN (Balance: 336788.00 ETB)
 // ==========================================
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -104,20 +105,21 @@ class HomeScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // Balance Card Section
             Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: primaryGreen,
-                borderRadius: const BorderRadius.only(
+                borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(20),
                 ),
               ),
               child: Column(
                 children: [
-                  const Text('Balance (ETB)', style: TextStyle(color: Colors.white, fontSize: 16)),
+                  const Text('Balance (ETB)', style: TextStyle(color: Colors.white70, fontSize: 16)),
                   const SizedBox(height: 10),
-                  const Text('339.66', style: TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold)),
+                  const Text('336,788.00', style: TextStyle(color: standardWhite, fontSize: 36, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -130,6 +132,8 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
+            
+            // Services Grid (Inspired by homev6_item_pay_function.xml)[cite: 23]
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: GridView.count(
@@ -155,6 +159,8 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
+            
+            // Promo Banner (Inspired by send_money_banner.xml)[cite: 17]
             Container(
               margin: const EdgeInsets.all(16),
               height: 120,
@@ -163,9 +169,11 @@ class HomeScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(15),
               ),
               child: const Center(
-                child: Text('Tele Play Promo Banner', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                child: Text('Tele Play Promo Banner', style: TextStyle(color: standardWhite, fontWeight: FontWeight.bold)),
               ),
             ),
+            
+            // Scan QR Button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: ElevatedButton.icon(
@@ -174,7 +182,7 @@ class HomeScreen extends StatelessWidget {
                 label: const Text('Scan QR'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
+                  foregroundColor: standardWhite,
                   minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
@@ -205,7 +213,7 @@ class HomeScreen extends StatelessWidget {
       children: [
         Text(title, style: const TextStyle(color: Colors.white70, fontSize: 12)),
         const SizedBox(height: 5),
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 16)),
+        Text(value, style: const TextStyle(color: standardWhite, fontSize: 16)),
       ],
     );
   }
@@ -221,7 +229,7 @@ class HomeScreen extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: standardWhite,
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 5)],
               ),
@@ -237,7 +245,7 @@ class HomeScreen extends StatelessWidget {
 }
 
 // ==========================================
-// 3. SEND MONEY SCREEN
+// 3. SEND MONEY SCREEN (Phone, Name, Amount)
 // ==========================================
 class SendMoneyScreen extends StatefulWidget {
   const SendMoneyScreen({super.key});
@@ -247,19 +255,19 @@ class SendMoneyScreen extends StatefulWidget {
 }
 
 class _SendMoneyScreenState extends State<SendMoneyScreen> {
-  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _amountController = TextEditingController(text: '600');
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Row(
-          children: [
+        title: Row(
+          children: const [
             Hero(
               tag: 'send_money_icon',
-              child: Icon(Icons.send, size: 22, color: Color(0xFF8DC63F)),
+              child: Icon(Icons.send, size: 22, color: primaryGreen),
             ),
             SizedBox(width: 10),
             Text('Send Money'),
@@ -274,17 +282,6 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Recipient Name', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      hintText: 'Enter full name',
-                      prefixIcon: Icon(Icons.person, color: primaryGreen),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
                   const Text('Phone Number', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
                   const SizedBox(height: 8),
                   TextField(
@@ -292,11 +289,22 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                     keyboardType: TextInputType.phone,
                     decoration: InputDecoration(
                       hintText: '2519...',
-                      prefixIcon: Icon(Icons.phone, color: primaryGreen),
+                      prefixIcon: const Icon(Icons.phone, color: primaryGreen),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 20),
+                  const Text('Recipient Name', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter full name',
+                      prefixIcon: const Icon(Icons.person, color: primaryGreen),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                   const Text('Amount (ETB)', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
                   const SizedBox(height: 8),
                   TextField(
@@ -323,7 +331,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              child: const Text('Send', style: TextStyle(fontSize: 18, color: Colors.white)),
+              child: const Text('Next', style: TextStyle(fontSize: 18, color: standardWhite)),
             ),
           ),
         ],
@@ -331,8 +339,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
     );
   }
 
-  // Calculate Real Tele Rate Fee based on rules:
-  // e.g. Up to 600 = 4 ETB, Up to 1000 = 5 ETB, else scales appropriately.
+  // Real Telebirr Fee Calculation Logic
   double _calculateFee(double amount) {
     if (amount <= 50) return 0.0;
     if (amount <= 600) return 4.0;
@@ -342,9 +349,9 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
   }
 
   void _showConfirmationModal(BuildContext context) {
+    String phone = _phoneController.text.isEmpty ? '251912345678' : _phoneController.text;
     String recipientName = _nameController.text.isEmpty ? 'Abebe Kebede' : _nameController.text;
-    String amountStr = _amountController.text.isEmpty ? '0' : _amountController.text;
-    double amount = double.tryParse(amountStr) ?? 0.0;
+    double amount = double.tryParse(_amountController.text) ?? 0.0;
     double serviceFee = _calculateFee(amount);
     double total = amount + serviceFee;
 
@@ -370,7 +377,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                 ],
               ),
               const SizedBox(height: 10),
-              Text('Send Money to $recipientName', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text('Send Money to $recipientName ($phone)', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               Text('${total.toStringAsFixed(2)} ETB', style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
               const SizedBox(height: 20),
@@ -384,7 +391,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                   children: [
                     _buildRow('Original Amount', '${amount.toStringAsFixed(2)} ETB'),
                     const SizedBox(height: 10),
-                    _buildRow('Service fee (Telerate)', '${serviceFee.toStringAsFixed(2)} ETB'),
+                    _buildRow('Service Fee', '${serviceFee.toStringAsFixed(2)} ETB'),
                   ],
                 ),
               ),
@@ -397,17 +404,17 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.account_balance_wallet, color: primaryGreen),
+                    const Icon(Icons.account_balance_wallet, color: primaryGreen),
                     const SizedBox(width: 10),
                     const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Balance', style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text('(Available Balance: 339.66 ETB)', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                        Text('(Available Balance: 336,788.00 ETB)', style: TextStyle(fontSize: 12, color: Colors.grey)),
                       ],
                     ),
                     const Spacer(),
-                    Icon(Icons.check_circle, color: primaryGreen),
+                    const Icon(Icons.check_circle, color: primaryGreen),
                   ],
                 ),
               ),
@@ -430,7 +437,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                   minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
-                child: const Text('Confirm & Send', style: TextStyle(fontSize: 18, color: Colors.white)),
+                child: const Text('Confirm & Pay', style: TextStyle(fontSize: 18, color: standardWhite)),
               ),
             ],
           ),
@@ -451,7 +458,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
 }
 
 // ==========================================
-// 4. PIN ENTRY SCREEN
+// 4. PIN ENTRY SCREEN (Inspired by pin_input_keyboard.xml)[cite: 13]
 // ==========================================
 class PinEntryScreen extends StatefulWidget {
   final double amount;
@@ -469,7 +476,7 @@ class PinEntryScreen extends StatefulWidget {
 
 class _PinEntryScreenState extends State<PinEntryScreen> {
   String _pin = '';
-  final String _correctPin = '308353';
+  final String _correctPin = '308353'; // Verified PIN
 
   void _addDigit(String digit) {
     if (_pin.length < 6) {
@@ -512,7 +519,7 @@ class _PinEntryScreenState extends State<PinEntryScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) {
-        return Center(
+        return const Center(
           child: CircularProgressIndicator(color: primaryGreen),
         );
       },
@@ -552,7 +559,7 @@ class _PinEntryScreenState extends State<PinEntryScreen> {
                     const SizedBox(height: 10),
                     Text(
                       '${widget.amount.toStringAsFixed(2)} ETB',
-                      style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+                      style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: standardWhite),
                     ),
                     const SizedBox(height: 40),
                     Row(
@@ -565,8 +572,8 @@ class _PinEntryScreenState extends State<PinEntryScreen> {
                           height: 16,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: isFilled ? Colors.white : Colors.transparent,
-                            border: Border.all(color: Colors.white, width: 2),
+                            color: isFilled ? standardWhite : Colors.transparent,
+                            border: Border.all(color: standardWhite, width: 2),
                           ),
                         );
                       }),
@@ -611,7 +618,7 @@ class _PinEntryScreenState extends State<PinEntryScreen> {
               width: 80,
               height: 60,
               alignment: Alignment.center,
-              child: const Icon(Icons.backspace_outlined, color: Colors.white, size: 30),
+              child: const Icon(Icons.backspace_outlined, color: standardWhite, size: 30),
             ),
           );
         }
@@ -624,7 +631,7 @@ class _PinEntryScreenState extends State<PinEntryScreen> {
             alignment: Alignment.center,
             child: Text(
               key,
-              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: standardWhite),
             ),
           ),
         );
@@ -634,7 +641,7 @@ class _PinEntryScreenState extends State<PinEntryScreen> {
 }
 
 // ==========================================
-// 5. SUCCESS SCREEN
+// 5. SUCCESS & TRANSACTION REPORT SCREEN
 // ==========================================
 class SuccessScreen extends StatelessWidget {
   final double amount;
@@ -653,7 +660,7 @@ class SuccessScreen extends StatelessWidget {
             onPressed: () {
               Navigator.popUntil(context, (route) => route.isFirst);
             },
-            child: Text('Done', style: TextStyle(color: primaryGreen)),
+            child: const Text('Done', style: TextStyle(color: primaryGreen)),
           )
         ],
       ),
@@ -662,12 +669,14 @@ class SuccessScreen extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            Icon(Icons.check_circle, color: primaryGreen, size: 80),
+            const Icon(Icons.check_circle, color: primaryGreen, size: 80),
             const SizedBox(height: 10),
-            Text('Successful', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: primaryGreen)),
+            const Text('Successful', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: primaryGreen)),
             const SizedBox(height: 40),
             Text('-${amount.toStringAsFixed(2)} ETB', style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold)),
             const SizedBox(height: 40),
+            
+            // Structured Metrics Panel (Inspired by fragment_transaction_report.xml)[cite: 21]
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -676,7 +685,7 @@ class SuccessScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  _buildDetailRow('Transaction Time:', '2026/09/11 20:25:33'),
+                  _buildDetailRow('Transaction Time:', '2026/10/13 20:11:00'),
                   const SizedBox(height: 15),
                   _buildDetailRow('Transaction Type:', 'Transfer Money'),
                   const SizedBox(height: 15),
@@ -687,6 +696,7 @@ class SuccessScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 30),
+            
             Container(
               height: 100,
               width: double.infinity,
@@ -694,11 +704,12 @@ class SuccessScreen extends StatelessWidget {
                 color: lightGreen,
                 borderRadius: BorderRadius.circular(15),
               ),
-              child: Center(
+              child: const Center(
                 child: Text('Tele Play Banner', style: TextStyle(color: darkGreen, fontWeight: FontWeight.bold)),
               ),
             ),
             const SizedBox(height: 40),
+            
             ElevatedButton(
               onPressed: () {
                 Navigator.popUntil(context, (route) => route.isFirst);
@@ -708,7 +719,7 @@ class SuccessScreen extends StatelessWidget {
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              child: const Text('Finished', style: TextStyle(fontSize: 18, color: Colors.white)),
+              child: const Text('Finished', style: TextStyle(fontSize: 18, color: standardWhite)),
             ),
           ],
         ),
